@@ -4,28 +4,15 @@ import { View, StyleSheet, Text } from 'react-native';
 import { Palette } from '@/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
-function JournalIcon({ focused }: { focused: boolean }) {
+function TabIcon({ name, label, focused }: { name: string; label: string; focused: boolean }) {
   return (
     <View style={styles.iconWrap}>
       <IconSymbol
-        name="book.closed.fill"
+        name={name as any}
         size={22}
         color={focused ? Palette.oliveDeep : Palette.warmGrayLight}
       />
-      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>Journal</Text>
-    </View>
-  );
-}
-
-function MapIcon({ focused }: { focused: boolean }) {
-  return (
-    <View style={styles.iconWrap}>
-      <IconSymbol
-        name="map.fill"
-        size={22}
-        color={focused ? Palette.oliveDeep : Palette.warmGrayLight}
-      />
-      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>Map</Text>
+      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text>
     </View>
   );
 }
@@ -35,8 +22,8 @@ function AddIcon({ focused }: { focused: boolean }) {
     <View style={[styles.addButton, focused && styles.addButtonFocused]}>
       <IconSymbol
         name="plus"
-        size={24}
-        color={focused ? Palette.white : Palette.oliveDeep}
+        size={22}
+        color={Palette.white}
         weight="semibold"
       />
     </View>
@@ -58,7 +45,9 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Journal',
-          tabBarIcon: ({ focused }) => <JournalIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="book.closed.fill" label="Journal" focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -72,7 +61,9 @@ export default function TabLayout() {
         name="map"
         options={{
           title: 'Map',
-          tabBarIcon: ({ focused }) => <MapIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="map.fill" label="Map" focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen name="explore" options={{ href: null }} />
@@ -82,47 +73,48 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: Palette.white,
+    backgroundColor: Palette.ivory,
     borderTopColor: Palette.beige,
-    borderTopWidth: 1,
-    height: 88,
-    paddingBottom: 24,
-    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    height: 84,
+    paddingBottom: 20,
+    paddingTop: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: -1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 6,
   },
   iconWrap: {
     alignItems: 'center',
-    gap: 3,
+    justifyContent: 'center',
+    gap: 4,
   },
   tabLabel: {
     fontSize: 10,
     fontWeight: '500',
     color: Palette.warmGrayLight,
-    letterSpacing: 0.3,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
   tabLabelFocused: {
     color: Palette.oliveDeep,
     fontWeight: '700',
   },
   addButton: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: Palette.beige,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Palette.oliveDeep,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowColor: Palette.oliveDeep,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 5,
   },
   addButtonFocused: {
-    backgroundColor: Palette.oliveDeep,
+    backgroundColor: Palette.oliveMid,
   },
 });
