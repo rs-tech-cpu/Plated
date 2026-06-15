@@ -12,7 +12,7 @@ function TabIcon({ name, label, focused }: { name: string; label: string; focuse
         size={22}
         color={focused ? Palette.oliveDeep : Palette.warmGrayLight}
       />
-      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text>
+      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]} numberOfLines={1}>{label}</Text>
     </View>
   );
 }
@@ -94,8 +94,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '500',
     color: Palette.warmGrayLight,
-    letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    letterSpacing: 0.2,
   },
   tabLabelFocused: {
     color: Palette.oliveDeep,
