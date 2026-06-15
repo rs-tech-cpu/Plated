@@ -3,13 +3,13 @@ import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEntries } from '@/hooks/useDatabase';
-import { EntryCard } from '@/components/EntryCard';
+import { SwipeableEntryCard } from '@/components/SwipeableEntryCard';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Palette, Fonts } from '@/constants/theme';
 import { PlatedEntry } from '@/lib/types';
 
 export default function JournalScreen() {
-  const { entries, loading, refresh } = useEntries();
+  const { entries, loading, refresh, removeEntry } = useEntries();
 
   useFocusEffect(
     useCallback(() => {
@@ -43,7 +43,9 @@ export default function JournalScreen() {
       <FlatList
         data={entries}
         keyExtractor={item => String(item.id)}
-        renderItem={({ item }: { item: PlatedEntry }) => <EntryCard entry={item} />}
+        renderItem={({ item }: { item: PlatedEntry }) => (
+            <SwipeableEntryCard entry={item} onDelete={removeEntry} />
+          )}
         contentContainerStyle={[styles.list, entries.length === 0 && styles.listEmpty]}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={!loading ? renderEmpty() : null}
