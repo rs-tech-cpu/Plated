@@ -10,7 +10,6 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_WIDTH = SCREEN_WIDTH - 40; // 20px padding each side in the feed
 const CARD_HEIGHT = 260;
 const CARD_MARGIN = 16;
-const DELETE_BAR_WIDTH = 88;
 const SWIPE_THRESHOLD = CARD_WIDTH * 0.42;
 
 interface Props {
@@ -36,24 +35,19 @@ export function SwipeableEntryCard({ entry, onDelete }: Props) {
 
   const renderRightActions = useCallback(
     (_progress: Animated.AnimatedInterpolation<number>, dragX: Animated.AnimatedInterpolation<number>) => {
-      const width = dragX.interpolate({
-        inputRange: [-CARD_WIDTH, -DELETE_BAR_WIDTH, 0],
-        outputRange: [CARD_WIDTH, DELETE_BAR_WIDTH, 0],
-        extrapolate: 'clamp',
-      });
-
-      const iconOpacity = dragX.interpolate({
-        inputRange: [-CARD_WIDTH, -DELETE_BAR_WIDTH * 1.2, 0],
-        outputRange: [1, 1, 0],
+      // translateX goes from CARD_WIDTH (hidden) → 0 (fully visible) as drag goes 0 → -CARD_WIDTH
+      const translateX = dragX.interpolate({
+        inputRange: [-CARD_WIDTH, 0],
+        outputRange: [0, CARD_WIDTH],
         extrapolate: 'clamp',
       });
 
       return (
-        <Animated.View style={[styles.deleteBar, { width }]}>
-          <Animated.View style={{ opacity: iconOpacity }}>
+        <View style={styles.deleteBarContainer}>
+          <Animated.View style={[styles.deleteBar, { transform: [{ translateX }] }]}>
             <IconSymbol name="trash.fill" size={26} color={Palette.white} />
           </Animated.View>
-        </Animated.View>
+        </View>
       );
     },
     []
@@ -84,14 +78,18 @@ const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
   },
-  deleteBar: {
-    backgroundColor: '#E03C3C',
+  deleteBarContainer: {
+    width: CARD_WIDTH,
     marginBottom: CARD_MARGIN,
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
+    overflow: 'hidden',
+  },
+  deleteBar: {
+    flex: 1,
+    backgroundColor: '#E03C3C',
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
   },
   overlay: {
     position: 'absolute',
