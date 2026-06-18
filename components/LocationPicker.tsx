@@ -39,6 +39,36 @@ async function reverseGeocodeName(latitude: number, longitude: number, fallback:
   return fallback;
 }
 
+function formatNominatimName(r: NominatimResult): string {
+  const addr = r.address ?? {};
+  const name = r.name || addr.amenity || addr.shop || addr.building || addr.tourism || '';
+  const city = addr.city || addr.town || addr.village || addr.municipality || addr.county || '';
+  const country = addr.country || '';
+  if (name && city) return `${name}, ${city}`;
+  if (name && country) return `${name}, ${country}`;
+  if (city && country) return `${city}, ${country}`;
+  return r.display_name.split(',').slice(0, 2).join(',').trim();
+}
+
+interface NominatimResult {
+  lat: string;
+  lon: string;
+  display_name: string;
+  name?: string;
+  address?: {
+    amenity?: string;
+    shop?: string;
+    building?: string;
+    tourism?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    county?: string;
+    country?: string;
+  };
+}
+
 export function LocationPicker({ visible, onClose, onSelect }: Props) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<LocationResult[]>([]);
@@ -62,28 +92,27 @@ export function LocationPicker({ visible, onClose, onSelect }: Props) {
 
   async function runSearch(text: string) {
     try {
-      const geocoded = await Location.geocodeAsync(text);
-      if (!geocoded.length) {
+      const url =
+        `https://nominatim.openstreetmap.org/search` +
+        `?q=${encodeURIComponent(text)}&format=json&limit=10&addressdetails=1`;
+      const res = await fetch(url, { headers: { 'User-Agent': 'PlatedApp/1.0' } });
+      const data: NominatimResult[] = await res.json();
+
+      if (!data.length) {
         setResults([]);
         setNoResults(true);
         return;
       }
 
-      const items = await Promise.all(
-        geocoded.slice(0, 6).map(async r => ({
-          latitude: r.latitude,
-          longitude: r.longitude,
-          name: await reverseGeocodeName(r.latitude, r.longitude, text),
-        }))
-      );
-
-      // deduplicate by name
       const seen = new Set<string>();
-      const unique = items.filter(item => {
-        if (seen.has(item.name)) return false;
-        seen.add(item.name);
-        return true;
-      });
+      const unique: LocationResult[] = [];
+      for (const r of data) {
+        const name = formatNominatimName(r);
+        if (!seen.has(name)) {
+          seen.add(name);
+          unique.push({ latitude: parseFloat(r.lat), longitude: parseFloat(r.lon), name });
+        }
+      }
 
       setResults(unique);
       setNoResults(unique.length === 0);
