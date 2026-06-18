@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { PlatedEntry, NewEntryInput } from './types';
+import { ClaimRecord } from './claims';
 
 let _db: SQLite.SQLiteDatabase | null = null;
 
@@ -17,6 +18,15 @@ async function getDb(): Promise<SQLite.SQLiteDatabase> {
         location_name TEXT,
         is_homemade INTEGER DEFAULT 0,
         date TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS claims (
+        id TEXT PRIMARY KEY,
+        offer_id INTEGER,
+        offer_title TEXT,
+        restaurant TEXT,
+        discount TEXT,
+        scanned INTEGER DEFAULT 0,
         created_at TEXT NOT NULL
       );
     `);
@@ -102,4 +112,60 @@ export async function updateEntry(id: number, input: NewEntryInput): Promise<voi
 export async function deleteEntry(id: number): Promise<void> {
   const db = await getDb();
   await db.runAsync('DELETE FROM entries WHERE id = ?', id);
+}
+
+// ─── Claims ───────────────────────────────────────────────────────────────────
+
+type ClaimRow = {
+  id: string;
+  offer_id: number;
+  offer_title: string;
+  restaurant: string;
+  discount: string;
+  scanned: number;
+  created_at: string;
+};
+
+function rowToClaim(row: ClaimRow): ClaimRecord {
+  return {
+    id: row.id,
+    offerId: row.offer_id,
+    offerTitle: row.offer_title,
+    restaurant: row.restaurant,
+    discount: row.discount,
+    scanned: row.scanned === 1,
+    createdAt: row.created_at,
+  };
+}
+
+export async function saveClaimLocally(claim: ClaimRecord): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(
+    `INSERT OR REPLACE INTO claims (id, offer_id, offer_title, restaurant, discount, scanned, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    claim.id,
+    claim.offerId,
+    claim.offerTitle,
+    claim.restaurant,
+    claim.discount,
+    claim.scanned ? 1 : 0,
+    claim.createdAt,
+  );
+}
+
+// Returns all claims from the last 30 days, newest first.
+export async function getRecentClaims(): Promise<ClaimRecord[]> {
+  const db = await getDb();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 30);
+  const rows = await db.getAllAsync<ClaimRow>(
+    'SELECT * FROM claims WHERE created_at >= ? ORDER BY created_at DESC',
+    cutoff.toISOString(),
+  );
+  return rows.map(rowToClaim);
+}
+
+export async function markClaimScanned(id: string): Promise<void> {
+  const db = await getDb();
+  await db.runAsync('UPDATE claims SET scanned = 1 WHERE id = ?', id);
 }

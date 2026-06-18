@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { View, Text, FlatList, StyleSheet, RefreshControl, Pressable } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import type { Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEntries } from '@/hooks/useDatabase';
 import { SwipeableEntryCard } from '@/components/SwipeableEntryCard';
@@ -9,6 +10,7 @@ import { Palette, Fonts } from '@/constants/theme';
 import { PlatedEntry } from '@/lib/types';
 
 export default function JournalScreen() {
+  const router = useRouter();
   const { entries, loading, refresh, removeEntry } = useEntries();
 
   useFocusEffect(
@@ -34,10 +36,18 @@ export default function JournalScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.wordmark}>Plated</Text>
-        <Text style={styles.subtitle}>
-          {entries.length} {entries.length === 1 ? 'memory' : 'memories'}
-        </Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.wordmark}>Plated</Text>
+          <Text style={styles.subtitle}>
+            {entries.length} {entries.length === 1 ? 'memory' : 'memories'}
+          </Text>
+        </View>
+        <Pressable
+          style={({ pressed }) => [styles.offersBtn, pressed && styles.offersBtnPressed]}
+          onPress={() => router.push('/offers' as Href)}
+        >
+          <IconSymbol name="tag.fill" size={18} color={Palette.oliveDeep} />
+        </Pressable>
       </View>
 
       <FlatList
@@ -63,9 +73,25 @@ const styles = StyleSheet.create({
     backgroundColor: Palette.cream,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 16,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  offersBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Palette.beige,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  offersBtnPressed: {
+    opacity: 0.7,
   },
   wordmark: {
     fontFamily: Fonts?.serif ?? 'serif',

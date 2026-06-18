@@ -14,7 +14,8 @@
         "NSCameraUsageDescription": "Plated needs camera access to photograph your dishes.",
         "NSPhotoLibraryUsageDescription": "Plated needs photo library access to save and choose dish photos.",
         "NSPhotoLibraryAddUsageDescription": "Plated saves your dish photos to your library.",
-        "NSLocationWhenInUseUsageDescription": "Plated uses your location to tag where you enjoyed this meal."
+        "NSLocationWhenInUseUsageDescription": "Plated uses your location to tag where you enjoyed this meal.",
+        "NFCReaderUsageDescription": "Plated uses NFC to verify and claim offers from participating restaurants."
       }
     },
     "android": {
@@ -38,17 +39,7 @@
         "android.permission.ACCESS_MEDIA_LOCATION",
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_MEDIA_AUDIO",
-        "android.permission.CAMERA",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-        "android.permission.ACCESS_MEDIA_LOCATION",
-        "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO"
+        "android.permission.NFC"
       ],
       "package": "com.rstech.plated"
     },
@@ -95,7 +86,8 @@
           "isAccessMediaLocationEnabled": true
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "react-native-nfc-manager"
     ],
     "experiments": {
       "typedRoutes": true,
